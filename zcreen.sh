@@ -4,35 +4,35 @@
 #
 # Tool to print on screen stats in short.
 #
-#set -xv
+# set -xv
 
 BASEDIR=$(dirname "$0")
-echo "$BASEDIR"
+#echo "$BASEDIR"
 
-# Styling.
-TRB=$(tput setaf 1 && tput bold)
-TRB=$(tput setaf 2 && tput bold)
 
 function help () {
   OUTPUT=``
 }
 
 function mem() {
-#TOTALMEM=`grep MemTotal /proc/meminfo | awk '{$2=$2/(1024^2); split($2,a,".");  print a[1] " GB"}'`
-#TOTALMEM=`grep MemTotal /proc/meminfo | awk '{$2=$2/1024; print $2}'`
-#RESULT=`awk -v n1=$TOTALMEM -v n2=0.0 'BEGIN{if (n1>n2) printf "BIG"; else printf "small";}'`
-MemTotal=`grep MemTotal /proc/meminfo | awk '{ print $2}'`
-MemFree=`grep MemFree /proc/meminfo | awk '{ print $2}'`
-MemAvailable=`grep MemAvailable /proc/meminfo | awk '{print $2}'`
+  threshold1=20
+  MEMtotal=`free -bt | grep Total | awk '{ print $2}'`
+  #MEMused=`free -bt | grep Total | awk '{ print $3}'`
+  MEMfree=`free -bt | grep Total | awk '{ print $4}'`
+  MEMperc=$(awk -v t1=$MEMfree -v t2=$MEMtotal 'BEGIN{ printf "%.0f", (t1/t2 * 100) }')
+  MEMfreeH=`free -ht | grep Total | awk '{ print $4}'`
+  MEMtotalH=`free -ht | grep Total | awk '{ print $2}'`
 
-MemPercentageUsed=
-
+  if [ $MEMperc -ge $threshold1 ]; then
+    echo -n "Total Free Memory : "; tput bold && tput setaf 2; echo -n "$MEMperc% ($MEMfreeH/$MEMtotalH)"; tput sgr0
+  else
+    echo -n "Total Free Memory : "; tput bold && tput setaf 1; echo -n "$MEMperc% ($MEMfreeH/$MEMtotalH)"; tput sgr0
+  fi
 }
+
+printf "\n"
 
 mem
 
 printf "\n"
-printf "Totoal Memory : $MemTotal  /  MemFree : $MemFree  /  MemAvailable : $MemAvailable\n"
-#printf "Result : $RESULT\n"
-#printf "LINE3\n"
 printf "\n"
