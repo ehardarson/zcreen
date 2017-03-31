@@ -9,12 +9,22 @@
 BASEDIR=$(dirname "$0")
 #echo "$BASEDIR"
 
+# Config - TODO move to config file.
+
+#Font Colors
+FC_Red='tput setaf 1'
+FC_Green='tput setaf 2'
+#Font Style
+FS_Bold='tput bold'
+
+
 
 function help () {
   OUTPUT=``
 }
 
-function mem() {
+function mem_function() {
+  # TODO - change this part to use /proc/meminfo.
   threshold1=20
   MEMtotal=`free -bt | grep Total | awk '{ print $2}'`
   #MEMused=`free -bt | grep Total | awk '{ print $3}'`
@@ -23,16 +33,25 @@ function mem() {
   MEMfreeH=`free -ht | grep Total | awk '{ print $4}'`
   MEMtotalH=`free -ht | grep Total | awk '{ print $2}'`
 
+
   if [ $MEMperc -ge $threshold1 ]; then
-    echo -n "Total Free Memory : "; tput bold && tput setaf 2; echo -n "$MEMperc% ($MEMfreeH/$MEMtotalH)"; tput sgr0
+    FC=$FC_Green
   else
-    echo -n "Total Free Memory : "; tput bold && tput setaf 1; echo -n "$MEMperc% ($MEMfreeH/$MEMtotalH)"; tput sgr0
+    FC=$FC_Red
   fi
 }
 
+
+# Load functions.
+mem_function
+
+HNAME=`hostname`
+CUPTIME=`uptime -p`
+
+
+# Print out on screen.
 printf "\n"
-
-mem
-
+echo -n "Hostname : "; $FS_Bold && $FC_Green; echo -n "$HNAME"; tput sgr0; echo -n "  Current uptime : "; $FS_Bold && $FC_Green; echo "$CUPTIME"; tput sgr0;
+echo -n "Total Free Memory : "; $FS_Bold && $FC; echo -n "$MEMperc% ($MEMfreeH/$MEMtotalH)"; tput sgr0;
 printf "\n"
 printf "\n"
